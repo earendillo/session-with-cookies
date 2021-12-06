@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/create-session', (req, res) => {
-
+    let sessionId = ''
     if (!sessions[req.cookies['sessionId']]) {
         sessionId = createSessionId();
         sessions[sessionId] = {values: []};
@@ -27,7 +27,7 @@ app.get('/create-session', (req, res) => {
 app.get('/delete-session', (req, res) => {
     delete sessions[req.cookies['sessionId']];
     res.clearCookie('sessionId');
-    res.send(getView('session deleted'));
+    res.send(getView(''));
 });
 
 app.get('/add-to-session', (req, res) => {
