@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/create-session', (req, res) => {
-    let sessionId = ''
+    let sessionId = req.cookies['sessionId'];
     if (!sessions[req.cookies['sessionId']]) {
         sessionId = createSessionId();
         sessions[sessionId] = {values: []};
@@ -52,8 +52,9 @@ function createSessionId() {
 function getView(sessionId = '') {
     let sessionValues = '';
 
-    if (sessionId) {
+    if (sessionId && sessions[sessionId]) {
         for (let object of sessions[sessionId].values) {
+
             sessionValues = sessionValues + `${object.value} `;
         }
     }
