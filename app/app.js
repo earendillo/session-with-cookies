@@ -6,6 +6,8 @@ const port = 3000;
 let sessions = {};
 
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded());
 
 app.get('/', (req, res) => {
     const sessionId = sessions[req.cookies['sessionId']] ? req.cookies['sessionId'] : '';
@@ -30,11 +32,11 @@ app.get('/delete-session', (req, res) => {
     res.send(getView(''));
 });
 
-app.get('/add-to-session', (req, res) => {
+app.post('/add-to-session', (req, res) => {
     const sessionId = req.cookies['sessionId'];
 
     if (sessions[sessionId]) {
-        sessions[sessionId].values.push({value: req.query.value});
+        sessions[sessionId].values.push({value: req.body.value});
     }
 
     res.send(getView(sessionId));
@@ -71,7 +73,7 @@ function getView(sessionId = '') {
         '            <input type="submit" value="Delete session!">\n' +
         '        </div>\n' +
         '    </form>\n' +
-        '    <form action="/add-to-session" method="get" >\n' +
+        '    <form action="/add-to-session" method="post" >\n' +
         '        <div>\n' +
         '            <input type="text" value="" name="value">\n' +
         '            <input type="submit" value="Add to session!">\n' +
