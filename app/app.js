@@ -7,7 +7,7 @@ const SESSION_ID = 'sessionId';
 const URL_ENCODED_OPTIONS = {
     extended: true
 };
-let sessions = {};
+const sessions = {};
 
 app.use(cookieParser());
 app.use(express.json());
