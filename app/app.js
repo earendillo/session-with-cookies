@@ -3,43 +3,48 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const port = 3000;
 
+const SESSION_ID = 'sessionId';
+const URL_ENCODED_OPTIONS = {
+    extended: true
+};
 let sessions = {};
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded(URL_ENCODED_OPTIONS));
 
 app.get('/', (req, res) => {
-    const sessionId = sessions[req.cookies['sessionId']] ? req.cookies['sessionId'] : '';
+    const sessionIdFromRequest = req.cookies[SESSION_ID];
+    const sessionId = sessions[sessionIdFromRequest] ? sessionIdFromRequest : '';
 
     res.send(getView(sessionId));
 });
 
-app.get('/create-session', (req, res) => {
-    let sessionId = req.cookies['sessionId'];
-    if (!sessions[req.cookies['sessionId']]) {
+app.post('/create-session', (req, res) => {
+    let sessionId = req.cookies[SESSION_ID];
+    if (!sessions[req.cookies[SESSION_ID]]) {
         sessionId = createSessionId();
         sessions[sessionId] = {values: []};
         res.cookie('sessionId', sessionId);
     }
 
-    res.send(getView(sessionId));
+    res.redirect('/');
 });
 
-app.get('/delete-session', (req, res) => {
-    delete sessions[req.cookies['sessionId']];
-    res.clearCookie('sessionId');
-    res.send(getView(''));
+app.post('/delete-session', (req, res) => {
+    delete sessions[req.cookies[SESSION_ID]];
+    res.clearCookie(SESSION_ID);
+    res.redirect('/');
 });
 
 app.post('/add-to-session', (req, res) => {
-    const sessionId = req.cookies['sessionId'];
+    const sessionId = req.cookies[SESSION_ID];
 
     if (sessions[sessionId]) {
         sessions[sessionId].values.push({value: req.body.value});
     }
 
-    res.send(getView(sessionId));
+    res.redirect('/');
 });
 
 
@@ -63,12 +68,12 @@ function getView(sessionId = '') {
 
     return `<h1>${sessionId ? sessionId : 'no session initialized'}</h1>\n` +
         `<p>${sessionValues ? sessionValues : 'no session values'}</p>` +
-        '    <form action="/create-session" method="get" >\n' +
+        '    <form action="/create-session" method="post" >\n' +
         '        <div>\n' +
         '            <input type="submit" value="Create session!">\n' +
         '        </div>\n' +
         '    </form>' +
-        '    <form action="/delete-session" method="get" >\n' +
+        '    <form action="/delete-session" method="post" >\n' +
         '        <div>\n' +
         '            <input type="submit" value="Delete session!">\n' +
         '        </div>\n' +
